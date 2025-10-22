@@ -42,12 +42,10 @@ class OneOf(Validator):
 
     def validate(self, value: str) -> bool:
         if value not in self.options:
+            options_str = ["'" + item + "', " for item in self.options]
             raise ValueError(f"Expected {value}"
-                             f" to be one of"
-                             f" ({"".join(
-                                 ["'" + item + "', "
-                                  for item in self.options]
-                             ).rstrip(", ")}).")
+                             f" to be one of "
+                             f"({"".join(options_str).rstrip(", ")}).")
         return True
 
 
