@@ -5,11 +5,12 @@ from abc import ABC, abstractmethod
 
 class Validator(ABC):
 
-    def __set_name__(self, owner: Validator, name: str) -> None:
+    def __set_name__(self, owner: Validator, name: str) -> Validator:
         self.protected_name = "_" + name
+        return self
 
     def __get__(self, instance: BurgerRecipe, owner: Validator) -> int:
-        return getattr(instance, self.protected_name)
+        return getattr(instance, self.protected_name, None)
 
     def __set__(self, instance: BurgerRecipe, value: int) -> None:
         if self.validate(value):
@@ -37,15 +38,15 @@ class Number(Validator):
 
 
 class OneOf(Validator):
-    def __init__(self, options: list) -> None:
-        self.options = options
+    def __init__(self, options: list | tuple) -> None:
+        self.options = tuple(options)
 
     def validate(self, value: str) -> bool:
         if value not in self.options:
-            options_str = ["'" + item + "', " for item in self.options]
+
             raise ValueError(f"Expected {value}"
                              f" to be one of "
-                             f"({"".join(options_str).rstrip(", ")}).")
+                             f"{self.options}.")
         return True
 
 
