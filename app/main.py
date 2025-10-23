@@ -9,12 +9,15 @@ class Validator(ABC):
         self.protected_name = "_" + name
         return self
 
-    def __get__(self, instance: BurgerRecipe, owner: Validator) -> int:
+    def __get__(self, instance: BurgerRecipe,
+                owner: Validator) -> int | Validator:
+        if instance is None:
+            return self
         return getattr(instance, self.protected_name, None)
 
     def __set__(self, instance: BurgerRecipe, value: int) -> None:
-        if self.validate(value):
-            setattr(instance, self.protected_name, value)
+        self.validate(value)
+        setattr(instance, self.protected_name, value)
 
     @abstractmethod
     def validate(self, value: int | str) -> bool:
@@ -43,7 +46,6 @@ class OneOf(Validator):
 
     def validate(self, value: str) -> bool:
         if value not in self.options:
-
             raise ValueError(f"Expected {value}"
                              f" to be one of "
                              f"{self.options}.")
